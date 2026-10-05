@@ -7,7 +7,8 @@
 ##############################
 """
 
-from python_cli_chatbot.utils.stop import get_stop
+from utils.stop import get_stop
+from agent.agent import get_agent, Agent, Model
 
 
 class MainMenu:
@@ -15,29 +16,34 @@ class MainMenu:
     Class that creates CLI menu.
     """
 
+    def __init__(self):
+        self._agent: Agent = get_agent()
+
     def handle_ollama(self):
         """
         Handle Ollama API
         """
-        print("Ollama")
+        self._agent.change(model=Model.OLLAMA)
+        get_stop().stop()
 
     def handle_claude(self):
         """
         Handle Claude Code API
         """
-        print("Claude Code")
+        self._agent.change(model=Model.CLAUDE)
+        get_stop().stop()
 
     def handle_open_ai(self):
         """
         Handle OpenAI API
         """
-        print("OpenAI")
+        self._agent.change(model=Model.OPEN_AI)
+        get_stop().stop()
 
     def handle_quit(self):
         """
         Handle quit
         """
-        print("quit")
         get_stop().stop()
 
     def handle_unknown(self):

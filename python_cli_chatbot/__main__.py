@@ -5,8 +5,8 @@
 """
 
 import logging
-from python_cli_chatbot.menu.main_menu import MainMenu
-from python_cli_chatbot.utils.stop import get_stop
+from menu.main_menu import MainMenu
+from utils.stop import get_stop
 
 
 def initialize():

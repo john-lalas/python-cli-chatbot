@@ -24,6 +24,12 @@ class Stop:
         """
         self._stop = True
 
+    def clear(self):
+        """
+        Clear stop
+        """
+        self._stop = False
+
     @property
     def stopped(self) -> bool:
         """
