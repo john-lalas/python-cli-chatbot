@@ -5,6 +5,7 @@
 """
 
 import logging
+from dotenv import load_dotenv
 from agent.agent import Agent, get_agent
 from menu.main_menu import MainMenu
 from prompt.prompt import prompt
@@ -15,11 +16,14 @@ def initialize():
     """
     Initialize python-cli-chatbot
     """
+    # Configure logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    # Load dot environment files
+    load_dotenv()
 
 
 def main() -> None:

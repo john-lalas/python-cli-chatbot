@@ -8,7 +8,7 @@
 """
 
 from utils.stop import get_stop
-from agent.agent import get_agent, Agent, Model
+from agent.agent import get_agent, Agent, API
 
 
 class MainMenu:
@@ -23,21 +23,21 @@ class MainMenu:
         """
         Handle Ollama API
         """
-        self._agent.change(model=Model.OLLAMA)
+        self._agent.change(model=API.OLLAMA)
         get_stop().stop()
 
     def handle_claude(self):
         """
         Handle Claude Code API
         """
-        self._agent.change(model=Model.CLAUDE)
+        self._agent.change(model=API.CLAUDE)
         get_stop().stop()
 
     def handle_open_ai(self):
         """
         Handle OpenAI API
         """
-        self._agent.change(model=Model.OPEN_AI)
+        self._agent.change(model=API.OPEN_AI)
         get_stop().stop()
 
     def handle_quit(self):
