@@ -13,7 +13,7 @@ from functools import lru_cache
 import requests
 from conversation.conversation import Conversation, get_convo
 from utils.constants import API, ApiRecord
-from .response import post_request
+from .response import post_request, handle_response
 
 
 class Agent:
@@ -39,8 +39,8 @@ class Agent:
             },
             API.OLLAMA: {
                 "model": self._api.api_model,
-                "prompt": prompt,
-                "stream": True,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
             },
             API.OPEN_AI: {
                 "model": self._api.api_model,
@@ -79,8 +79,11 @@ class Agent:
             api=API.OLLAMA,
             api_key=api_key,
             api_url=os.environ.get("OLLAMA_API_URL"),
-            api_model="llama3",
-            headers={},
+            api_model="gemma4:e2b",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
         )
 
     def setup_openai(self) -> None:
@@ -133,14 +136,7 @@ class Agent:
         self._convo.save_prompt(prompt=prompt)
         payload: dict = self.create_payload(prompt=prompt)
         response: requests.Response = post_request(api=self._api, payload=payload)
-        logging.info("Response: %s", response)
-
-    @property
-    def model(self) -> API:
-        """
-        Model property
-        """
-        return self._model
+        handle_response(api=self._api.api, response=response)
 
 
 @lru_cache(maxsize=1)

@@ -13,7 +13,7 @@ import requests
 from utils.constants import API, ApiRecord
 
 
-def empty_api_payload(ai: str, prompt: str) -> dict:
+def empty_api_payload(_: str, __: str) -> dict:
     """
     Empty payload
     """
@@ -71,9 +71,12 @@ def post_request(api: ApiRecord, payload: dict) -> requests.Response:
     Create API request
     """
     if api.api == API.OLLAMA:
-        return requests.post(url=api.api_url, json=payload, stream=True)
+        logging.info("Sending to url: %s", api.api_url)
+        logging.info("Sending to model: %s", api.api_model)
+        logging.info("Sending to key: %s", api.api_key)
+        return requests.post(url=api.api_url, json=payload, stream=False)
 
-    return requests.post(url=api.api_url, headers=api.headers, json=payload)
+    return requests.post(url=api.api_url, headers=api.headers, json=payload, timeout=60)
 
 
 def handle_response(api: API, response: requests.Response):
@@ -96,9 +99,10 @@ def handle_openai_result(response: requests.Response):
     if response.status_code == 200:
         result = response.json()
         answer = result["choices"][0]["message"]["comment"]
-        logging.info(answer)
+        logging.info("Result: %s", result)
+        logging.info("Answer: %s", answer)
     else:
-        logging.error(f"Error response: {response.status_code}")
+        logging.error("Error response: %s", response.status_code)
 
 
 def handle_claude_result(response: requests.Response):
@@ -109,9 +113,10 @@ def handle_claude_result(response: requests.Response):
     if response.status_code == 200:
         result = response.json()
         answer = result["content"][0]["text"]
-        logging.info(answer)
+        logging.info("Result: %s", result)
+        logging.info("Answer: %s", answer)
     else:
-        logging.error(f"Error response: {response.status_code}")
+        logging.error("Error response: %s", response.status_code)
 
 
 def handle_ollama_result(response: requests.Response):
@@ -124,6 +129,7 @@ def handle_ollama_result(response: requests.Response):
             if line:
                 decoded_line = line.decode("utf-8")
                 json_line = json.loads(decoded_line)
-                logging.info(json_line.get("response", ""))
+                logging.info("Response: %s", json_line)
+                # logging.info("Response: %s", json_line.get("response", ""))
     else:
-        logging.error(f"Error response: {response.status_code}")
+        logging.error("Error response: %s", response.status_code)
