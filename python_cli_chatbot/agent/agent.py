@@ -7,8 +7,10 @@
 ##############################
 """
 
+import logging
 from enum import Enum
 from functools import lru_cache
+from conversation.conversation import Conversation, get_convo
 
 
 class Model(Enum):
@@ -29,6 +31,7 @@ class Agent:
 
     def __init__(self):
         self._model: Model = Model.UNKNOWN
+        self._convo: Conversation = get_convo()
 
     def change(self, model: Model) -> None:
         """
@@ -36,11 +39,12 @@ class Agent:
         """
         self._model = model
 
-    def infer(self, prompt: str, context: list) -> None:
+    def infer(self, prompt: str) -> None:
         """
         Make inference from prompt.
         """
-        print(f"Make inference: {prompt}")
+        logging.info("Make inference: %s", prompt)
+        self._convo.save_prompt(prompt=prompt)
 
     @property
     def model(self) -> Model:
