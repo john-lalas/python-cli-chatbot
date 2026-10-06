@@ -36,6 +36,12 @@ class Agent:
         """
         self._model = model
 
+    def infer(self, prompt: str, context: list) -> None:
+        """
+        Make inference from prompt.
+        """
+        print(f"Make inference: {prompt}")
+
     @property
     def model(self) -> Model:
         """
