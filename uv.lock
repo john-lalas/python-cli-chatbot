@@ -108,12 +108,16 @@ wheels = [
 name = "python-cli-chatbot"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
+
+[package.dev-dependencies]
+dev = [
     { name = "pylint" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pylint", specifier = ">=4.1.2" }]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pylint", specifier = ">=4.1.2" }]
 
 [[package]]
 name = "tomlkit"
