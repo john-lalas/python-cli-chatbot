@@ -7,8 +7,10 @@
 ##############################
 """
 
+import logging
 from utils.stop import get_stop
-from agent.agent import get_agent, Agent, API
+from agent.agent import get_agent, Agent
+from utils.constants import API
 
 
 class MainMenu:
@@ -23,21 +25,21 @@ class MainMenu:
         """
         Handle Ollama API
         """
-        self._agent.change(model=API.OLLAMA)
+        self._agent.change(api=API.OLLAMA)
         get_stop().stop()
 
     def handle_claude(self):
         """
         Handle Claude Code API
         """
-        self._agent.change(model=API.CLAUDE)
+        self._agent.change(api=API.CLAUDE)
         get_stop().stop()
 
     def handle_open_ai(self):
         """
         Handle OpenAI API
         """
-        self._agent.change(model=API.OPEN_AI)
+        self._agent.change(api=API.OPEN_AI)
         get_stop().stop()
 
     def handle_quit(self):
@@ -50,7 +52,7 @@ class MainMenu:
         """
         Handle unknown
         """
-        print("Unknown choice")
+        logging.info("Unknown choice")
 
     def show(self):
         """

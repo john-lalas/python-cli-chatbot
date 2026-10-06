@@ -7,34 +7,10 @@
 ##############################
 """
 
-from dataclasses import dataclass
+import json
+import logging
 import requests
-from agent.agent import API
-
-
-@dataclass
-class ApiRecord:
-    """
-    Dataclass that contains data needed to make API calls.
-    """
-
-    api: API = API.UNKNOWN
-    api_key: str = ""
-    api_url: str = ""
-    api_model: str = ""
-    headers: dict = {}
-
-
-def select_model(api: API) -> str:
-    """
-    Select model from AI
-    """
-    model_dict: dict = {
-        "openai": "gpt-4o-mini",
-        "claude": "claude-3-5-sonnet-20241022",
-        "ollama": "llama3",
-    }
-    return model_dict.get(ai)
+from utils.constants import API, ApiRecord
 
 
 def empty_api_payload(ai: str, prompt: str) -> dict:
@@ -99,12 +75,17 @@ def post_request(api: ApiRecord, payload: dict) -> requests.Response:
 
     return requests.post(url=api.api_url, headers=api.headers, json=payload)
 
-def handle_response(ai: str, response: requests.Response):
+
+def handle_response(api: API, response: requests.Response):
     """
     Handle HTTP response
     """
-    ai_dict: dict = {"openai": handle_openai_result, "claude": handle_claude_result}
-    return ai_dict.get(ai)()
+    ai_dict: dict = {
+        API.OPEN_AI: handle_openai_result,
+        API.CLAUDE: handle_claude_result,
+        API.OLLAMA: handle_ollama_result,
+    }
+    return ai_dict.get(api)(response)
 
 
 def handle_openai_result(response: requests.Response):

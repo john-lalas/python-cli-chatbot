@@ -9,22 +9,11 @@
 
 import os
 import logging
-from enum import Enum
 from functools import lru_cache
 import requests
 from conversation.conversation import Conversation, get_convo
-from response import ApiRecord, post_request
-
-
-class API(Enum):
-    """
-    Enumeration for AI agent types
-    """
-
-    UNKNOWN = 0
-    CLAUDE = 1
-    OLLAMA = 2
-    OPEN_AI = 3
+from utils.constants import API, ApiRecord
+from .response import post_request
 
 
 class Agent:
@@ -36,21 +25,25 @@ class Agent:
         self._api: ApiRecord = ApiRecord()
         self._convo: Conversation = get_convo()
 
-    def create_payload(self, api: API, prompt: str) -> dict:
+    def create_payload(self, prompt: str) -> dict:
         """
         Create API payload
         """
         payload_dict: dict = {
             API.CLAUDE: {
-                "model": api.api_model,
+                "model": self._api.api_model,
                 "max_tokens": 1024,
                 "messages": [
                     {"role": "user", "content": f"{prompt}"},
                 ],
             },
-            API.OLLAMA: {"model": api.api_model, "prompt": prompt, "stream": True},
+            API.OLLAMA: {
+                "model": self._api.api_model,
+                "prompt": prompt,
+                "stream": True,
+            },
             API.OPEN_AI: {
-                "model": api.api_model,
+                "model": self._api.api_model,
                 "messages": [
                     {"role": "system", "content": "You are a concise assistant."},
                     {"role": "user", "content": f"{prompt}"},
@@ -58,7 +51,7 @@ class Agent:
                 "temperature": 0.7,
             },
         }
-        return payload_dict.get(api, {})
+        return payload_dict.get(self._api.api, {})
 
     def setup_claude(self) -> None:
         """
@@ -138,7 +131,7 @@ class Agent:
         """
         logging.info("Make inference: %s", prompt)
         self._convo.save_prompt(prompt=prompt)
-        payload: dict = self.create_payload(api=self._api)
+        payload: dict = self.create_payload(prompt=prompt)
         response: requests.Response = post_request(api=self._api, payload=payload)
         logging.info("Response: %s", response)
 

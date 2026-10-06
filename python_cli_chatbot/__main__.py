@@ -41,6 +41,10 @@ def main() -> None:
     agent: Agent = get_agent()
     while not get_stop().stopped:
         p: str = prompt()
+        if "quit" in p.lower():
+            get_stop().stop()
+            break
+
         if p and len(p) > 0:
             agent.infer(prompt=p)
 
