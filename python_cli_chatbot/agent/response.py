@@ -11,6 +11,7 @@ import json
 import logging
 import requests
 from utils.constants import API, ApiRecord
+from conversation.conversation import get_convo
 
 
 def empty_api_payload(_: str, __: str) -> dict:
@@ -129,7 +130,10 @@ def handle_ollama_result(response: requests.Response):
             if line:
                 decoded_line = line.decode("utf-8")
                 json_line = json.loads(decoded_line)
-                logging.info("Response: %s", json_line)
-                # logging.info("Response: %s", json_line.get("response", ""))
+                message = json_line.get("message", "")
+                content = message.get("content", "")
+                print(content)
+                print("\n")
+                get_convo().save_response(response=content)
     else:
         logging.error("Error response: %s", response.status_code)
