@@ -1,0 +1,15 @@
+[project]
+name = "python-cli-chatbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "dotenv>=0.9.9",
+    "requests>=2.34.2",
+]
+
+[dependency-groups]
+dev = [
+    "pylint>=4.1.2",
+]
