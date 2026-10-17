@@ -135,7 +135,7 @@ class Agent:
         logging.info("Make inference: %s", prompt)
         self._convo.save_prompt(prompt=prompt)
         payload: dict = self.create_payload(prompt=prompt)
-        response: requests.Response = post_request(api=self._api, payload=payload)
+        response: requests.Response | None = post_request(api=self._api, payload=payload)
         handle_response(api=self._api.api, response=response)
 
 
