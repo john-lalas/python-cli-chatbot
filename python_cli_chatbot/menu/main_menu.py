@@ -8,9 +8,9 @@
 """
 
 import logging
-from utils.stop import get_stop
 from agent.agent import get_agent, Agent
 from utils.constants import API
+from utils.stop import get_stop
 
 
 class MainMenu:
