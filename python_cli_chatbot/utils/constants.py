@@ -10,6 +10,9 @@
 from enum import Enum
 from dataclasses import dataclass, field
 
+# Number of past prompt/response pairs sent with each request
+MAX_HISTORY_EXCHANGES: int = 10
+
 
 class API(Enum):
     """

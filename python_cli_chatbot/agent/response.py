@@ -20,9 +20,8 @@ def post_request(api: ApiRecord, payload: dict) -> requests.Response | None:
     """
     try:
         if api.api == API.OLLAMA:
-            logging.info("Sending to url: %s", api.api_url)
-            logging.info("Sending to model: %s", api.api_model)
-            logging.info("Sending to key: %s", api.api_key)
+            logging.debug("Sending to url: %s", api.api_url)
+            logging.debug("Sending to model: %s", api.api_model)
             return requests.post(url=api.api_url, json=payload, stream=False, timeout=60)
 
         return requests.post(url=api.api_url, headers=api.headers, json=payload, timeout=60)
@@ -54,8 +53,11 @@ def handle_openai_result(response: requests.Response):
     if response.status_code == 200:
         result = response.json()
         answer = result["choices"][0]["message"]["content"]
-        logging.info("Result: %s", result)
-        logging.info("Answer: %s", answer)
+        logging.debug("Result: %s", result)
+        logging.debug("Answer: %s", answer)
+        print(answer)
+        print("\n")
+        get_convo().save_response(response=answer)
     else:
         logging.error("Error response: %s", response.status_code)
 
@@ -68,8 +70,11 @@ def handle_claude_result(response: requests.Response):
     if response.status_code == 200:
         result = response.json()
         answer = result["content"][0]["text"]
-        logging.info("Result: %s", result)
-        logging.info("Answer: %s", answer)
+        logging.debug("Result: %s", result)
+        logging.debug("Answer: %s", answer)
+        print(answer)
+        print("\n")
+        get_convo().save_response(response=answer)
     else:
         logging.error("Error response: %s", response.status_code)
 
