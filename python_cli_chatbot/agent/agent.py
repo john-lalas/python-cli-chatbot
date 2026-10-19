@@ -27,26 +27,27 @@ class Agent:
 
     def create_payload(self, prompt: str) -> dict:
         """
-        Create API payload
+        Create API payload with conversation history followed by prompt
         """
+        messages: list[dict] = self._convo.history() + [
+            {"role": "user", "content": prompt}
+        ]
         payload_dict: dict = {
             API.CLAUDE: {
                 "model": self._api.api_model,
                 "max_tokens": 1024,
-                "messages": [
-                    {"role": "user", "content": f"{prompt}"},
-                ],
+                "messages": messages,
             },
             API.OLLAMA: {
                 "model": self._api.api_model,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages,
                 "stream": False,
             },
             API.OPEN_AI: {
                 "model": self._api.api_model,
                 "messages": [
                     {"role": "system", "content": "You are a concise assistant."},
-                    {"role": "user", "content": f"{prompt}"},
+                    *messages,
                 ],
                 "temperature": 0.7,
             },
@@ -132,7 +133,7 @@ class Agent:
         """
         Make inference from prompt.
         """
-        logging.info("Make inference: %s", prompt)
+        logging.debug("Make inference: %s", prompt)
         self._convo.save_prompt(prompt=prompt)
         payload: dict = self.create_payload(prompt=prompt)
         response: requests.Response | None = post_request(api=self._api, payload=payload)
