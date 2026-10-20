@@ -14,76 +14,29 @@ from utils.constants import API, ApiRecord
 from conversation.conversation import get_convo
 
 
-def empty_api_payload(_: str, __: str) -> dict:
+def post_request(api: ApiRecord, payload: dict) -> requests.Response | None:
     """
-    Empty payload
+    Create API request. Returns None if the request fails.
     """
-    return {}
+    try:
+        if api.api == API.OLLAMA:
+            logging.debug("Sending to url: %s", api.api_url)
+            logging.debug("Sending to model: %s", api.api_model)
+            return requests.post(url=api.api_url, json=payload, stream=False, timeout=60)
+
+        return requests.post(url=api.api_url, headers=api.headers, json=payload, timeout=60)
+    except requests.exceptions.RequestException as e:
+        logging.error("Request to %s failed: %s", api.api_url, e)
+        return None
 
 
-def create_api_payload(api: API, prompt: str) -> dict:
-    """
-    Make API payload that contains prompt
-    """
-    model_dict: dict = {
-        API.OPEN_AI: create_openai_payload,
-        API.CLAUDE: create_claude_payload,
-        API.OLLAMA: create_ollama_payload,
-    }
-    return model_dict.get(api, empty_api_payload)(api.api_model, prompt)
-
-
-def create_openai_payload(model: str, prompt: str) -> dict:
-    """
-    Make API payload that contains prompt
-    """
-    return {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": "You are a concise assistant."},
-            {"role": "user", "content": f"{prompt}"},
-        ],
-        "temperature": 0.7,
-    }
-
-
-def create_claude_payload(model: str, prompt: str) -> dict:
-    """
-    Make API payload that contains prompt
-    """
-    return {
-        "model": model,
-        "max_tokens": 1024,
-        "messages": [
-            {"role": "user", "content": f"{prompt}"},
-        ],
-    }
-
-
-def create_ollama_payload(model: str, prompt: str) -> dict:
-    """
-    Make API payload that contains prompt
-    """
-    return {"model": model, "prompt": prompt, "stream": True}
-
-
-def post_request(api: ApiRecord, payload: dict) -> requests.Response:
-    """
-    Create API request
-    """
-    if api.api == API.OLLAMA:
-        logging.info("Sending to url: %s", api.api_url)
-        logging.info("Sending to model: %s", api.api_model)
-        logging.info("Sending to key: %s", api.api_key)
-        return requests.post(url=api.api_url, json=payload, stream=False)
-
-    return requests.post(url=api.api_url, headers=api.headers, json=payload, timeout=60)
-
-
-def handle_response(api: API, response: requests.Response):
+def handle_response(api: API, response: requests.Response | None):
     """
     Handle HTTP response
     """
+    if response is None:
+        return None
+
     ai_dict: dict = {
         API.OPEN_AI: handle_openai_result,
         API.CLAUDE: handle_claude_result,
@@ -99,9 +52,12 @@ def handle_openai_result(response: requests.Response):
     # Unpack response
     if response.status_code == 200:
         result = response.json()
-        answer = result["choices"][0]["message"]["comment"]
-        logging.info("Result: %s", result)
-        logging.info("Answer: %s", answer)
+        answer = result["choices"][0]["message"]["content"]
+        logging.debug("Result: %s", result)
+        logging.debug("Answer: %s", answer)
+        print(answer)
+        print("\n")
+        get_convo().save_response(response=answer)
     else:
         logging.error("Error response: %s", response.status_code)
 
@@ -114,8 +70,11 @@ def handle_claude_result(response: requests.Response):
     if response.status_code == 200:
         result = response.json()
         answer = result["content"][0]["text"]
-        logging.info("Result: %s", result)
-        logging.info("Answer: %s", answer)
+        logging.debug("Result: %s", result)
+        logging.debug("Answer: %s", answer)
+        print(answer)
+        print("\n")
+        get_convo().save_response(response=answer)
     else:
         logging.error("Error response: %s", response.status_code)
 

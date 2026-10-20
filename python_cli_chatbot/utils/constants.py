@@ -9,6 +9,13 @@
 
 from enum import Enum
 from dataclasses import dataclass, field
+from pathlib import Path
+
+# Number of past prompt/response pairs sent with each request
+MAX_HISTORY_EXCHANGES: int = 10
+
+# File the conversation history is saved to and loaded from on startup
+HISTORY_FILE: Path = Path.home() / ".python_cli_chatbot" / "history.json"
 
 
 class API(Enum):
